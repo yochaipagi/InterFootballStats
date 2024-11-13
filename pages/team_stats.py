@@ -12,14 +12,10 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 # At the top of your file, after imports
 SHEETS_CONFIG = {
-    "Team A": {
+    "Statistics vs Moldova 4 - 3": {
         "spreadsheet_id": "1yKtKwtmQheGPvIpBcus-BbkbTc5WcF_J91uVVXOe5Zk",
         "range": "Sheet1!A1:P1000"
     },
-    "Team B": {
-        "spreadsheet_id": "your_second_spreadsheet_id",
-        "range": "Sheet1!A1:P1000"
-    }
     # Add more teams as needed
 }
 
@@ -271,10 +267,10 @@ def main():
         st.info("Please make sure your Google Sheets credentials are properly set up.")
 
     # Add new sheet form in sidebar
-    with st.sidebar.expander("Add New Team Sheet"):
-        new_team_name = st.text_input("Team Name")
+    with st.sidebar.expander("Add New Game Sheet"):
+        new_team_name = st.text_input("Game Name")
         new_sheet_id = st.text_input("Spreadsheet ID")
-        if st.button("Add Team"):
+        if st.button("Add Game"):
             if new_team_name and new_sheet_id:
                 # Store in session state
                 if 'additional_sheets' not in st.session_state:
