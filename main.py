@@ -11,24 +11,26 @@ st.set_page_config(page_title="Football Stats Dashboard", layout="wide")
 
 # Google Sheets setup
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-SAMPLE_SPREADSHEET_ID = '1yKtKwtmQheGPvIpBcus-BbkbTc5WcF_J91uVVXOe5Zk'
 SAMPLE_RANGE_NAME = 'Sheet1!A1:P1000'
 
 @st.cache_data
-def load_data():
-    # Create credentials
+def load_data(spreadsheet_id=None):
+    if spreadsheet_id is None:
+        # Use default spreadsheet from secrets
+        spreadsheet_id = st.secrets["spreadsheet_ids"]["default"]
+    
     credentials = service_account.Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"],  # We'll set this up in Streamlit
+        st.secrets["gcp_service_account"],
         scopes=SCOPES
     )
-
+    
     # Create service
     service = build('sheets', 'v4', credentials=credentials)
     sheet = service.spreadsheets()
     
     # Get data
     result = sheet.values().get(
-        spreadsheetId=SAMPLE_SPREADSHEET_ID,
+        spreadsheetId=spreadsheet_id,
         range=SAMPLE_RANGE_NAME
     ).execute()
     
@@ -52,9 +54,18 @@ def load_data():
 def main():
     st.title("⚽ Player Statistics Dashboard")
     
+    # Add spreadsheet selector in sidebar
+    st.sidebar.header("Data Source")
+    available_sheets = st.secrets["spreadsheet_ids"]
+    selected_sheet = st.sidebar.selectbox(
+        "Select Spreadsheet",
+        options=list(available_sheets.keys()),
+        format_func=lambda x: available_sheets[x].get("name", x)
+    )
+    
     try:
-        # Load data
-        df = load_data()
+        # Load data with selected spreadsheet
+        df = load_data(available_sheets[selected_sheet]["id"])
     except Exception as e:
         st.error(f"Error loading data: {e}")
         return
